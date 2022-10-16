@@ -17,6 +17,8 @@ board_img = pygame.image.load(os.path.join("img", "board.png"))
 board_rect = board_img.get_rect()
 
 board = [[0 for _ in range(8)] for _ in range(8)]
+selected = 0
+turn = "w"
 
 board[0][0] = Rook(0, 0, "b")
 board[0][1] = Knight(1, 0, "b")
@@ -78,16 +80,18 @@ def select(index):
             if board[i][j] != 0:
                 board[i][j].selected = False
 
+    selected = 0
+
     box = board[index[0]][index[1]]
-    if box != 0:
-        # delete static stuff like this
-        if box.team != "b":
-            box.selected = True
+    box.selected = True
+    return box
 
 
-def move():
-    # this next
-    pass
+def move(index):
+    board[index[0]][index[1]] = board[selected.y][selected.x]
+    board[selected.y][selected.x].x = index[1]
+    board[selected.y][selected.x].y = index[0]
+    board[selected.y][selected.x].selected = False
 
 
 while True:
@@ -98,7 +102,16 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
             index = click(pos)
-            select(index)
+            # change
+            if selected != 0:
+                if [index[1], index[0]] in selected.valid_moves(board):
+                    move(index)
+                    selected = 0
+                    turn = "b"
+
+            if board[index[0]][index[1]] != 0:
+                if board[index[0]][index[1]].team == turn:
+                    selected = select(index)
 
     screen.fill("#18191A")
 
