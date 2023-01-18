@@ -88,19 +88,47 @@ def select(index):
 
 
 def move(index):
-    piece = board[selected.y][selected.x]
-    board[index[0]][index[1]] = piece
-    piece.x = index[1]
-    piece.y = index[0]
-    piece.selected = False
+    if isinstance(board[selected.y][selected.x], King):
+
+        if index[1] == (selected.x - 2):
+            if board[selected.y][selected.x].team:
+                board[7][0] = 0
+                board[index[0]][index[1]+1] = Rook(
+                    index[1]+1, index[0], board[selected.y][selected.x].team)
+            else:
+                board[0][0] = 0
+                board[index[0]][index[1]+1] = Rook(
+                    index[1]+1, index[0], board[selected.y][selected.x].team)
+        if index[1] == (selected.x + 2):
+            if board[selected.y][selected.x].team:
+                board[7][7] = 0
+                board[index[0]][index[1]-1] = Rook(
+                    index[1]-1, index[0], board[selected.y][selected.x].team)
+            else:
+                board[0][7] = 0
+                board[index[0]][index[1]-1] = Rook(
+                    index[1]-1, index[0], board[selected.y][selected.x].team)
+
+    board[index[0]][index[1]] = board[selected.y][selected.x]
+    board[selected.y][selected.x] = 0
+    board[index[0]][index[1]].x = index[1]
+    board[index[0]][index[1]].y = index[0]
+    board[index[0]][index[1]].selected = False
+    board[index[0]][index[1]].first = False
+
+    if isinstance(board[index[0]][index[1]], Pawn) and (board[index[0]][index[1]].y == 7 or board[index[0]][index[1]].y == 0):
+        board[index[0]][index[1]] = Queen(
+            board[index[0]][index[1]].x, board[index[0]][index[1]].y, board[index[0]][index[1]].team)
 
 
 while True:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        if event.type == pygame.MOUSEBUTTONUP:
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             index = click(pos)
             if selected != 0:
