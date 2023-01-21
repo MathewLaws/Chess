@@ -2,8 +2,8 @@ import pygame
 import os
 from sys import exit
 from pygame.constants import MOUSEBUTTONDOWN
-from piece import Pawn, Bishop, Knight, Rook, Queen, King
-
+from piece import Pawn, Bishop, Knight, Rook, Queen, King, move, generate_legal, check_mate
+import time
 from pygame.time import Clock
 
 pygame.init()
@@ -87,41 +87,10 @@ def select(index):
     return box
 
 
-def move(index):
-    if isinstance(board[selected.y][selected.x], King):
+generate_legal(turn, board)
 
-        if index[1] == (selected.x - 2):
-            if board[selected.y][selected.x].team:
-                board[7][0] = 0
-                board[index[0]][index[1]+1] = Rook(
-                    index[1]+1, index[0], board[selected.y][selected.x].team)
-            else:
-                board[0][0] = 0
-                board[index[0]][index[1]+1] = Rook(
-                    index[1]+1, index[0], board[selected.y][selected.x].team)
-        if index[1] == (selected.x + 2):
-            if board[selected.y][selected.x].team:
-                board[7][7] = 0
-                board[index[0]][index[1]-1] = Rook(
-                    index[1]-1, index[0], board[selected.y][selected.x].team)
-            else:
-                board[0][7] = 0
-                board[index[0]][index[1]-1] = Rook(
-                    index[1]-1, index[0], board[selected.y][selected.x].team)
-
-    board[index[0]][index[1]] = board[selected.y][selected.x]
-    board[selected.y][selected.x] = 0
-    board[index[0]][index[1]].x = index[1]
-    board[index[0]][index[1]].y = index[0]
-    board[index[0]][index[1]].selected = False
-    board[index[0]][index[1]].first = False
-
-    if isinstance(board[index[0]][index[1]], Pawn) and (board[index[0]][index[1]].y == 7 or board[index[0]][index[1]].y == 0):
-        board[index[0]][index[1]] = Queen(
-            board[index[0]][index[1]].x, board[index[0]][index[1]].y, board[index[0]][index[1]].team)
-
-
-while True:
+game = True
+while game:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -133,9 +102,12 @@ while True:
             index = click(pos)
             if selected != 0:
                 if [index[1], index[0]] in selected.valid_moves(board):
-                    move(index)
+                    board = move(index, board, selected)
                     selected = 0
                     turn = not turn
+                    generate_legal(turn, board)
+                    if check_mate():
+                        game = False
 
             if board[index[0]][index[1]] != 0:
                 if board[index[0]][index[1]].team == turn:
