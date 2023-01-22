@@ -279,7 +279,8 @@ class Knight(Piece):
                 if i in legal_moves[self.name]:
                     valid_moves.append(i)
 
-        return valid_moves
+            return valid_moves
+        return moves
 
 
 class Rook(Piece):
